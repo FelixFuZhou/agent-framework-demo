@@ -4,10 +4,11 @@ import com.example.autogen.agent.Agent;
 import com.example.autogen.chat.RoundRobinGroupChat;
 import com.example.autogen.chat.TextMentionTermination;
 import com.example.autogen.message.ChatMessage;
-import com.example.autogen.model.ModelClient;
+import com.example.autogen.model.SpringAIChatClient;
 import com.example.autogen.team.SoftwareDevTeamFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +18,7 @@ import java.util.List;
  * 软件开发团队协作运行器
  * 对应AutoGen案例中的run_software_development_team()
  *
- * 模拟一个完整的软件开发协作流程：
+ * 基于 Spring AI ChatClient 实现 AutoGen 的多智能体对话协作：
  * ProductManager(需求分析) -> Engineer(编码) -> CodeReviewer(审查) -> UserProxy(验收)
  */
 @Component
@@ -25,19 +26,22 @@ public class SoftwareDevTeamRunner implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(SoftwareDevTeamRunner.class);
 
-    private final ModelClient modelClient;
+    private final ChatClient.Builder chatClientBuilder;
 
-    public SoftwareDevTeamRunner(ModelClient modelClient) {
-        this.modelClient = modelClient;
+    public SoftwareDevTeamRunner(ChatClient.Builder chatClientBuilder) {
+        this.chatClientBuilder = chatClientBuilder;
     }
 
     @Override
     public void run(String... args) {
-        System.out.println("🔧 正在初始化模型客户端...");
+        System.out.println("🔧 正在初始化 Spring AI ChatClient...");
         System.out.println("👥 正在创建智能体团队...");
 
+        // 构建 Spring AI ChatClient
+        SpringAIChatClient chatClient = new SpringAIChatClient(chatClientBuilder.build());
+
         // 创建团队工厂
-        SoftwareDevTeamFactory factory = new SoftwareDevTeamFactory(modelClient);
+        SoftwareDevTeamFactory factory = new SoftwareDevTeamFactory(chatClient);
 
         // 创建四个智能体角色
         Agent productManager = factory.createProductManager();

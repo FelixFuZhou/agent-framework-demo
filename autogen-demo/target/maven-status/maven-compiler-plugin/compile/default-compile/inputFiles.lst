@@ -5,9 +5,7 @@
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/chat/RoundRobinGroupChat.java
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/chat/TerminationCondition.java
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/chat/TextMentionTermination.java
-/Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/config/ModelClientConfig.java
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/message/ChatMessage.java
-/Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/model/ModelClient.java
-/Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/model/OpenAIChatCompletionClient.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/model/SpringAIChatClient.java
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/runner/SoftwareDevTeamRunner.java
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/team/SoftwareDevTeamFactory.java

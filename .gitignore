@@ -1,0 +1,16 @@
+.idea/
+*.iml
+*.class
+*.jar
+*.war
+**/target/
+cache
+
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
+/app-monitor-admin/src/main/resources/static/dist/
+/app-monitor-admin/src/main/resources/static/node/
+/app-monitor-admin/src/main/resources/static/node_modules/

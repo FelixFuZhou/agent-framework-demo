@@ -7,7 +7,8 @@
 ## 技术栈
 
 - **Java 21** — record、text block、pattern matching
-- **Spring Boot 3.3.x** — 依赖注入、配置管理、RestClient
+- **Spring Boot 3.3.x** — 依赖注入、配置管理
+- **Spring AI 1.0.0** — 统一 LLM 调用抽象（ChatClient）
 - **Maven** — 多模块构建
 - **LLM** — 任何 OpenAI 兼容 API（OpenAI / DeepSeek / 通义千问 / Ollama）
 
@@ -43,8 +44,8 @@ agent-framework-demo/
 ```bash
 export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home
 export LLM_API_KEY=your-api-key
-export LLM_BASE_URL=https://api.deepseek.com/v1
-export LLM_MODEL_ID=deepseek-chat
+export LLM_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode
+export LLM_MODEL_ID=qwen-turbo
 ```
 
 ### 编译项目

@@ -15,12 +15,12 @@ AutoGen 的设计哲学：**以对话驱动协作**。
 ### 关键组件
 
 | 组件 | 职责 | Java 对应 |
-|------|------|-----------|
+|------|------|--------|
 | AssistantAgent | 基于 LLM 的智能体，通过 System Message 定义专家角色 | `AssistantAgent` 类 |
 | UserProxyAgent | 用户代理，发起任务 + 发出 TERMINATE 终止 | `UserProxyAgent` 类 |
 | RoundRobinGroupChat | 轮询群聊协调器，按顺序激活智能体 | `RoundRobinGroupChat` 类 |
 | TextMentionTermination | 终止条件，检测消息中的关键词 | `TextMentionTermination` 类 |
-| OpenAIChatCompletionClient | 兼容 OpenAI API 的模型客户端 | `OpenAIChatCompletionClient` 类 |
+| OpenAIChatCompletionClient | 兼容 OpenAI API 的模型客户端 | `SpringAIChatClient`（封装 Spring AI `ChatClient`） |
 
 ## 3. 智能体角色设计
 
@@ -56,7 +56,7 @@ UserProxy（用户代理）
 
 | 决策点 | 选择 | 理由 |
 |--------|------|------|
-| LLM 调用方式 | Spring RestClient 同步调用 | 学习项目，简化实现；Python 原版用 async，Java 同步更直观 |
+| LLM 调用方式 | Spring AI `ChatClient` | 学习项目，拥抱 Spring 生态；Spring AI 自动配置 + 统一抽象 |
 | UserProxy 模式 | 支持交互/自动两种 | 交互模式用于真实使用，自动模式用于演示和测试 |
 | 消息格式 | `record ChatMessage` | 不可变，简洁，Java 21 特性 |
 | 角色创建 | 工厂模式 `SoftwareDevTeamFactory` | 解耦角色定义和协作流程，便于复用 |
@@ -66,7 +66,7 @@ UserProxy（用户代理）
 | 方面 | Python AutoGen 0.7.4 | Java 实现 |
 |------|----------------------|-----------|
 | 异步模型 | async/await 全异步 | 同步调用（简化） |
-| 框架 | autogen-agentchat 库 | 手动实现核心抽象 |
-| 配置方式 | 环境变量 + 函数 | Spring Boot @Value + application.properties |
+| 框架 | autogen-agentchat 库 | Spring AI `ChatClient` + 手动实现核心抽象 |
+| 配置方式 | 环境变量 + 函数 | Spring AI 自动配置 + application.properties |
 | 运行入口 | asyncio.run() | CommandLineRunner |
 | 流式输出 | Console(stream) | Consumer<ChatMessage> 回调 |

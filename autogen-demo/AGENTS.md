@@ -2,7 +2,9 @@
 
 ## 模块概述
 
-AutoGen 框架 Java 实现。案例：**软件开发团队**，4 个智能体通过 RoundRobinGroupChat 轮询协作完成软件开发任务。
+AutoGen 框架 Java 实现（基于 **Spring AI**）。案例：**软件开发团队**，4 个智能体通过 RoundRobinGroupChat 轮询协作完成软件开发任务。
+
+使用 Spring AI `ChatClient` 替代手动 RestClient 调用 LLM，由框架统一管理模型配置。
 
 ## 文件结构与职责
 
@@ -16,8 +18,7 @@ com.example.autogen/
 │   └── UserProxyAgent.java              #   用户代理（交互/自动两种模式）
 │
 ├── model/                               # LLM 模型客户端
-│   ├── ModelClient.java                 #   接口：chatCompletion(messages)
-│   └── OpenAIChatCompletionClient.java  #   基于 RestClient 调用 OpenAI 兼容 API
+│   └── SpringAIChatClient.java          #   封装 Spring AI ChatClient，统一 LLM 调用
 │
 ├── message/                             # 消息
 │   └── ChatMessage.java                 #   record: source + content + timestamp
@@ -26,9 +27,6 @@ com.example.autogen/
 │   ├── RoundRobinGroupChat.java         #   轮询群聊：按顺序激活智能体
 │   ├── TerminationCondition.java        #   终止条件接口
 │   └── TextMentionTermination.java      #   关键词匹配终止
-│
-├── config/                              # Spring 配置
-│   └── ModelClientConfig.java           #   注入 ModelClient Bean
 │
 ├── runner/                              # 启动入口
 │   └── SoftwareDevTeamRunner.java       #   CommandLineRunner，组织协作流程

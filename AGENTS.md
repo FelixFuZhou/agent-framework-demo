@@ -11,9 +11,8 @@ AI Agent 框架学习项目：基于 Java 语言实现 AutoGen、AgentScope、CA
 | 语言 | Java | 21 |
 | 框架 | Spring Boot | 3.3.5 |
 | 构建工具 | Maven | 3.6+ |
-| HTTP 客户端 | Spring RestClient | (Spring 6.1+) |
-| JSON 处理 | Jackson | 2.17.2 |
-| LLM API | OpenAI 兼容接口 | — |
+| AI 框架 | Spring AI | 1.0.0 |
+| LLM API | OpenAI 兼容接口（通过 Spring AI） | — |
 
 ## 项目目录结构
 
@@ -35,7 +34,7 @@ agent-framework-demo/               # 父工程（Maven 多模块）
 ├── .github/
 │   └── copilot-instructions.md      # GitHub Copilot 指令文件
 │
-├── autogen-demo/                    # 模块1：AutoGen 框架实现
+├── autogen-demo/                    # 模块1：AutoGen 框架实现（基于 Spring AI）
 │   ├── pom.xml
 │   ├── AGENTS.md                    # L4 模块级上下文
 │   └── src/main/java/com/example/autogen/
@@ -98,9 +97,9 @@ export LLM_MODEL_ID=deepseek-chat                  # 模型名称
 
 | 配置项 | 环境变量 | 说明 |
 |--------|----------|------|
-| `llm.model` | `LLM_MODEL_ID` | 模型名称 |
-| `llm.api-key` | `LLM_API_KEY` | API 密钥 |
-| `llm.base-url` | `LLM_BASE_URL` | API 基础地址 |
+| `spring.ai.openai.chat.options.model` | `LLM_MODEL_ID` | 模型名称 |
+| `spring.ai.openai.api-key` | `LLM_API_KEY` / `DASHSCOPE_API_KEY` | API 密钥 |
+| `spring.ai.openai.base-url` | `LLM_BASE_URL` | API 基础地址 |
 
 ## 编码规范索引
 

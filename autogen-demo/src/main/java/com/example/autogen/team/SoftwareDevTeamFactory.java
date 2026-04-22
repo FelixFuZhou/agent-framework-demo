@@ -3,7 +3,7 @@ package com.example.autogen.team;
 import com.example.autogen.agent.Agent;
 import com.example.autogen.agent.AssistantAgent;
 import com.example.autogen.agent.UserProxyAgent;
-import com.example.autogen.model.ModelClient;
+import com.example.autogen.model.SpringAIChatClient;
 
 /**
  * 软件开发团队智能体工厂
@@ -11,10 +11,10 @@ import com.example.autogen.model.ModelClient;
  */
 public class SoftwareDevTeamFactory {
 
-    private final ModelClient modelClient;
+    private final SpringAIChatClient chatClient;
 
-    public SoftwareDevTeamFactory(ModelClient modelClient) {
-        this.modelClient = modelClient;
+    public SoftwareDevTeamFactory(SpringAIChatClient chatClient) {
+        this.chatClient = chatClient;
     }
 
     /**
@@ -41,7 +41,7 @@ public class SoftwareDevTeamFactory {
                 请简洁明了地回应，并在分析完成后说"请工程师开始实现"。
                 """;
 
-        return new AssistantAgent("ProductManager", systemMessage, modelClient);
+        return new AssistantAgent("ProductManager", systemMessage, chatClient);
     }
 
     /**
@@ -68,7 +68,7 @@ public class SoftwareDevTeamFactory {
                 请提供完整的可运行代码，并在完成后说"请代码审查员检查"。
                 """;
 
-        return new AssistantAgent("Engineer", systemMessage, modelClient);
+        return new AssistantAgent("Engineer", systemMessage, chatClient);
     }
 
     /**
@@ -95,7 +95,7 @@ public class SoftwareDevTeamFactory {
                 请提供具体的审查意见，完成后说"代码审查完成，请用户代理测试"。
                 """;
 
-        return new AssistantAgent("CodeReviewer", systemMessage, modelClient);
+        return new AssistantAgent("CodeReviewer", systemMessage, chatClient);
     }
 
     /**
