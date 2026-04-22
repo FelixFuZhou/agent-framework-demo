@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoGen 软件开发团队协作</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            color: #e0e0e0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: #16213e;
+            padding: 16px 24px;
+            border-bottom: 1px solid #0f3460;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        header h1 {
+            font-size: 18px;
+            color: #e94560;
+        }
+        header .status {
+            margin-left: auto;
+            font-size: 13px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            background: #0f3460;
+        }
+        header .status.active { background: #1b4332; color: #95d5b2; }
+        header .status.waiting { background: #7f4f24; color: #ffcb69; }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* 任务输入区 */
+        .task-panel {
+            padding: 20px 24px;
+            background: #16213e;
+            border-bottom: 1px solid #0f3460;
+        }
+        .task-panel label {
+            display: block;
+            font-size: 14px;
+            color: #a0a0b0;
+            margin-bottom: 8px;
+        }
+        .task-panel textarea {
+            width: 100%;
+            height: 100px;
+            background: #1a1a2e;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            color: #e0e0e0;
+            padding: 12px;
+            font-size: 14px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        .task-panel textarea:focus { outline: none; border-color: #e94560; }
+        .task-panel .actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: #e94560; color: #fff; }
+        .btn-primary:hover:not(:disabled) { opacity: 0.85; }
+        .btn-secondary { background: #0f3460; color: #e0e0e0; }
+        .btn-secondary:hover:not(:disabled) { opacity: 0.85; }
+        .btn-success { background: #1b4332; color: #95d5b2; }
+        .btn-success:hover:not(:disabled) { opacity: 0.85; }
+
+        /* 对话区 */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+            position: relative;
+        }
+        .message .agent-name {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: block;
+        }
+        .message .msg-content { }
+        .message .msg-content code {
+            background: rgba(0,0,0,0.3);
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        .message .msg-content pre {
+            background: #0d1117;
+            padding: 12px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 8px 0;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        /* Agent 角色颜色 */
+        .message.user { align-self: flex-end; background: #0f3460; }
+        .message.user .agent-name { color: #7ec8e3; }
+
+        .message.ProductManager { align-self: flex-start; background: #1b2838; border-left: 3px solid #f4a261; }
+        .message.ProductManager .agent-name { color: #f4a261; }
+
+        .message.Engineer { align-self: flex-start; background: #1b2838; border-left: 3px solid #2a9d8f; }
+        .message.Engineer .agent-name { color: #2a9d8f; }
+
+        .message.CodeReviewer { align-self: flex-start; background: #1b2838; border-left: 3px solid #e76f51; }
+        .message.CodeReviewer .agent-name { color: #e76f51; }
+
+        .message.UserProxy { align-self: flex-end; background: #0f3460; }
+        .message.UserProxy .agent-name { color: #7ec8e3; }
+
+        /* 用户输入区 */
+        .input-panel {
+            padding: 16px 24px;
+            background: #16213e;
+            border-top: 1px solid #0f3460;
+            display: none;
+        }
+        .input-panel.visible { display: flex; gap: 10px; align-items: center; }
+        .input-panel input {
+            flex: 1;
+            padding: 10px 14px;
+            background: #1a1a2e;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+        .input-panel input:focus { outline: none; border-color: #e94560; }
+
+        /* 代码生成区 */
+        .generate-panel {
+            padding: 16px 24px;
+            background: #16213e;
+            border-top: 1px solid #0f3460;
+            display: none;
+        }
+        .generate-panel.visible { display: flex; gap: 10px; align-items: center; }
+        .generate-panel input {
+            flex: 1;
+            padding: 10px 14px;
+            background: #1a1a2e;
+            border: 1px solid #0f3460;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+        .generate-panel input:focus { outline: none; border-color: #e94560; }
+        .generate-result {
+            margin-top: 12px;
+            padding: 12px;
+            background: #1a1a2e;
+            border-radius: 8px;
+            font-size: 13px;
+            display: none;
+        }
+        .generate-result.visible { display: block; }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #0f3460; border-radius: 3px; }
+
+        .typing-indicator {
+            display: inline-flex;
+            gap: 4px;
+            padding: 8px 16px;
+            align-self: flex-start;
+        }
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #e94560;
+            border-radius: 50%;
+            animation: typing 1.2s infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; transform: scale(0.8); }
+            30% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🤖 AutoGen 软件开发团队</h1>
+        <div class="status" id="statusBadge">就绪</div>
+    </header>
+
+    <div class="main-container">
+        <!-- 任务输入 -->
+        <div class="task-panel" id="taskPanel">
+            <label>📝 输入开发任务描述：</label>
+            <textarea id="taskInput" placeholder="例如：我们需要开发一个比特币价格显示应用...">我们需要开发一个比特币价格显示应用，具体要求如下：
+核心功能：
+- 实时显示比特币当前价格（USD）
+- 显示24小时价格变化趋势（涨跌幅和涨跌额）
+- 提供价格刷新功能
+
+技术要求：
+- 使用 Java + Spring Boot 框架创建 Web 应用
+- 界面简洁美观，用户友好
+- 添加适当的错误处理和加载状态
+
+请团队协作完成这个任务，从需求分析到最终实现。</textarea>
+            <div class="actions">
+                <button class="btn btn-primary" id="startBtn" onclick="startChat()">🚀 启动团队协作</button>
+            </div>
+        </div>
+
+        <!-- 对话流 -->
+        <div class="chat-area" id="chatArea"></div>
+
+        <!-- 用户回复输入 -->
+        <div class="input-panel" id="inputPanel">
+            <input type="text" id="userInput" placeholder="输入回复（输入 TERMINATE 结束并生成代码）..."
+                   onkeydown="if(event.key==='Enter') submitInput()">
+            <button class="btn btn-primary" onclick="submitInput()">发送</button>
+        </div>
+
+        <!-- 代码生成 -->
+        <div class="generate-panel" id="generatePanel">
+            <input type="text" id="outputDir" placeholder="输入代码输出目录路径，例如 /tmp/bitcoin-app">
+            <button class="btn btn-success" onclick="generateCode()">📦 生成代码工程</button>
+        </div>
+        <div class="generate-result" id="generateResult"></div>
+    </div>
+
+    <script>
+        let sessionId = null;
+        let eventSource = null;
+        let lastSessionChatHistory = [];
+
+        function setStatus(text, type) {
+            const badge = document.getElementById('statusBadge');
+            badge.textContent = text;
+            badge.className = 'status ' + (type || '');
+        }
+
+        function scrollToBottom() {
+            const area = document.getElementById('chatArea');
+            area.scrollTop = area.scrollHeight;
+        }
+
+        function addMessage(source, content) {
+            const area = document.getElementById('chatArea');
+
+            // 移除 typing indicator
+            const typing = area.querySelector('.typing-indicator');
+            if (typing) typing.remove();
+
+            const div = document.createElement('div');
+            div.className = 'message ' + source;
+
+            // 简单 markdown 渲染：处理代码块
+            let html = escapeHtml(content);
+            // 代码块
+            html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
+                return '<pre><code>' + code + '</code></pre>';
+            });
+            // 行内代码
+            html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+            // 加粗
+            html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+            div.innerHTML = '<span class="agent-name">' + escapeHtml(source) + '</span>'
+                          + '<div class="msg-content">' + html + '</div>';
+
+            area.appendChild(div);
+            scrollToBottom();
+        }
+
+        function addTypingIndicator() {
+            const area = document.getElementById('chatArea');
+            const existing = area.querySelector('.typing-indicator');
+            if (existing) return;
+
+            const div = document.createElement('div');
+            div.className = 'typing-indicator';
+            div.innerHTML = '<span></span><span></span><span></span>';
+            area.appendChild(div);
+            scrollToBottom();
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        async function startChat() {
+            const task = document.getElementById('taskInput').value.trim();
+            if (!task) { alert('请输入任务描述'); return; }
+
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('taskPanel').style.display = 'none';
+            setStatus('协作中...', 'active');
+            document.getElementById('chatArea').innerHTML = '';
+
+            addTypingIndicator();
+
+            try {
+                const response = await fetch('/api/chat/start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ task })
+                });
+
+                if (!response.ok) {
+                    throw new Error('启动失败: ' + response.status);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let currentEvent = null;
+                let currentData = [];
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+
+                    // 按行解析，保留最后不完整的行在 buffer 中
+                    const lines = buffer.split('\n');
+                    // 如果 buffer 不以 \n 结尾，最后一个元素是不完整的行
+                    buffer = buffer.endsWith('\n') ? '' : lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('event:')) {
+                            currentEvent = line.substring(6).trim();
+                        } else if (line.startsWith('data:')) {
+                            currentData.push(line.substring(5));
+                        } else if (line.trim() === '' && currentData.length > 0) {
+                            // 空行 = 事件边界，派发事件
+                            handleSSEEvent(currentEvent, currentData.join('\n'));
+                            currentEvent = null;
+                            currentData = [];
+                        }
+                    }
+                }
+
+            } catch (e) {
+                console.error('SSE 错误:', e);
+                setStatus('连接错误', '');
+                addMessage('系统', '连接错误: ' + e.message);
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('taskPanel').style.display = 'block';
+            }
+        }
+
+        function handleSSEEvent(eventName, dataStr) {
+            try {
+                const data = JSON.parse(dataStr);
+
+                switch (eventName) {
+                    case 'session':
+                        sessionId = data.sessionId;
+                        console.log('会话ID:', sessionId);
+                        break;
+
+                    case 'message':
+                        addMessage(data.source, data.content);
+                        addTypingIndicator();
+                        break;
+
+                    case 'waiting_input':
+                        // 移除 typing indicator
+                        const area = document.getElementById('chatArea');
+                        const typing = area.querySelector('.typing-indicator');
+                        if (typing) typing.remove();
+
+                        setStatus('等待用户输入', 'waiting');
+                        document.getElementById('inputPanel').classList.add('visible');
+                        document.getElementById('userInput').focus();
+                        break;
+
+                    case 'complete':
+                        // 移除 typing indicator
+                        const area2 = document.getElementById('chatArea');
+                        const typing2 = area2.querySelector('.typing-indicator');
+                        if (typing2) typing2.remove();
+
+                        setStatus('协作完成', '');
+                        document.getElementById('inputPanel').classList.remove('visible');
+                        addMessage('系统', '✅ 团队协作完成！共 ' + data.totalTurns + ' 轮对话。');
+
+                        // 显示代码生成面板
+                        document.getElementById('generatePanel').classList.add('visible');
+                        break;
+
+                    case 'error':
+                        setStatus('出错', '');
+                        addMessage('系统', '❌ 错误: ' + data.message);
+                        break;
+                }
+            } catch (e) {
+                console.warn('解析 SSE 数据失败:', dataStr, e);
+            }
+        }
+
+        async function submitInput() {
+            const input = document.getElementById('userInput').value.trim();
+            if (!input || !sessionId) return;
+
+            document.getElementById('userInput').value = '';
+            document.getElementById('inputPanel').classList.remove('visible');
+            setStatus('协作中...', 'active');
+            addTypingIndicator();
+
+            try {
+                const res = await fetch('/api/chat/input', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId, input })
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    addMessage('系统', '提交失败: ' + err.message);
+                }
+            } catch (e) {
+                addMessage('系统', '提交失败: ' + e.message);
+            }
+        }
+
+        async function generateCode() {
+            const outputDir = document.getElementById('outputDir').value.trim();
+            if (!outputDir) { alert('请输入输出目录路径'); return; }
+            if (!sessionId) { alert('没有活跃的会话'); return; }
+
+            const resultDiv = document.getElementById('generateResult');
+            resultDiv.classList.add('visible');
+            resultDiv.innerHTML = '正在生成代码...';
+
+            try {
+                const res = await fetch('/api/chat/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId, outputDir })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    let html = '✅ 代码生成成功！输出目录: ' + escapeHtml(data.outputDir) + '<br><br>生成的文件：<br>';
+                    if (data.files && data.files.length > 0) {
+                        html += '<ul>';
+                        for (const f of data.files) {
+                            html += '<li>' + escapeHtml(f.filePath) + ' (' + escapeHtml(f.language || '未知') + ')</li>';
+                        }
+                        html += '</ul>';
+                    } else {
+                        html += '（未检测到带文件路径的代码块）';
+                    }
+                    resultDiv.innerHTML = html;
+                } else {
+                    resultDiv.innerHTML = '❌ 生成失败: ' + escapeHtml(data.message);
+                }
+            } catch (e) {
+                resultDiv.innerHTML = '❌ 请求失败: ' + escapeHtml(e.message);
+            }
+        }
+    </script>
+</body>
+</html>

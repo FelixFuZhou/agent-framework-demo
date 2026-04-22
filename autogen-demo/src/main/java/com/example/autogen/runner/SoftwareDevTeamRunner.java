@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,6 +23,7 @@ import java.util.List;
  * ProductManager(需求分析) -> Engineer(编码) -> CodeReviewer(审查) -> UserProxy(验收)
  */
 @Component
+@ConditionalOnProperty(name = "autogen.mode", havingValue = "cli")
 public class SoftwareDevTeamRunner implements CommandLineRunner {
 
     private static final Logger log = LoggerFactory.getLogger(SoftwareDevTeamRunner.class);
