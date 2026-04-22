@@ -1,0 +1,22 @@
+---
+description: Java 后端编码规范（精简版）
+globs: "**/*.java"
+alwaysApply: false
+---
+
+# Java 后端编码规范速查
+
+> 完整规范见 `docs/conventions/backend.md`
+
+## 技术基线
+- Java 21 + Spring Boot 3.3.x + Maven
+
+## 关键约定
+- 按领域概念分包：`agent/`, `model/`, `message/`, `chat/`, `config/`, `runner/`, `team/`
+- 不可变数据用 `record`，多行文本用 text block
+- 接口不加 I 前缀，实现类用描述性名称
+- 构造器注入，不用 `@Autowired`
+- Agent 等业务对象由工厂创建，不用 `@Component`
+- LLM 调用必须 try-catch，返回可读错误信息
+- 集合优先 `List.of()` / `Map.of()`
+- 用户可见输出用 `System.out.println`，调试/错误用 SLF4J
