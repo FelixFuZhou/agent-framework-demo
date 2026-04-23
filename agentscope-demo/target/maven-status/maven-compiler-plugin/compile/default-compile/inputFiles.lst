@@ -1,0 +1,12 @@
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/agentscope-demo/src/main/java/com/example/agentscope/AgentScopeDemoApplication.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/agentscope-demo/src/main/java/com/example/agentscope/agent/Agent.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/agentscope-demo/src/main/java/com/example/agentscope/agent/DialogAgent.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/agentscope-demo/src/main/java/com/example/agentscope/chat/MsgHub.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/agentscope-demo/src/main/java/com/example/agentscope/chat/Pipeline.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/agentscope-demo/src/main/java/com/example/agentscope/game/GameRole.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/agentscope-demo/src/main/java/com/example/agentscope/game/Player.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/agentscope-demo/src/main/java/com/example/agentscope/game/RolePrompts.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/agentscope-demo/src/main/java/com/example/agentscope/game/ThreeKingdomsWerewolfGame.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/agentscope-demo/src/main/java/com/example/agentscope/message/Msg.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/agentscope-demo/src/main/java/com/example/agentscope/model/SpringAIChatClient.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/agentscope-demo/src/main/java/com/example/agentscope/runner/WerewolfGameRunner.java
