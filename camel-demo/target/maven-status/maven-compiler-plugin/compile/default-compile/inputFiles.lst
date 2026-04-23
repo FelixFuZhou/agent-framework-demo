@@ -1,0 +1,9 @@
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/camel-demo/src/main/java/com/example/camel/CamelDemoApplication.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/camel-demo/src/main/java/com/example/camel/agent/CamelAgent.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/camel-demo/src/main/java/com/example/camel/agent/ChatAgent.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/camel-demo/src/main/java/com/example/camel/chat/InceptionPrompts.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/camel-demo/src/main/java/com/example/camel/chat/RolePlaying.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/camel-demo/src/main/java/com/example/camel/config/CamelConfig.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/camel-demo/src/main/java/com/example/camel/message/ChatMessage.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/camel-demo/src/main/java/com/example/camel/model/SpringAIChatClient.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/camel-demo/src/main/java/com/example/camel/runner/EbookRunner.java
