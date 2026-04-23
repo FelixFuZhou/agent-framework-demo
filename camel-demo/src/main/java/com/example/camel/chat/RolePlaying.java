@@ -6,6 +6,7 @@ import com.example.camel.model.SpringAIChatClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -123,8 +124,11 @@ public class RolePlaying {
      * 运行完整的角色扮演协作流程
      *
      * @param outputHandler 输出回调（每行输出都会调用）
+     * @return AI Assistant 生成的所有章节内容（拼接后的完整电子书文本）
      */
-    public void run(Consumer<String> outputHandler) {
+    public String run(Consumer<String> outputHandler) {
+        List<String> bookChapters = new ArrayList<>();
+
         outputHandler.accept("╔══════════════════════════════════════════╗");
         outputHandler.accept("║       CAMEL 角色扮演协作系统启动         ║");
         outputHandler.accept("╚══════════════════════════════════════════╝");
@@ -149,6 +153,9 @@ public class RolePlaying {
 
             StepResult result = step(inputMsg);
 
+            // 收集 AI Assistant 的内容作为电子书章节
+            bookChapters.add(result.assistantResponse().content());
+
             // 输出 AI Assistant 的解决方案
             outputHandler.accept("【" + assistantAgent.getRoleName() + " 的解决方案】");
             outputHandler.accept(result.assistantResponse().content());
@@ -159,7 +166,7 @@ public class RolePlaying {
                 outputHandler.accept("║         任务完成！协作结束               ║");
                 outputHandler.accept("╚══════════════════════════════════════════╝");
                 outputHandler.accept("共进行了 " + turn + " 轮对话。");
-                return;
+                return String.join("\n\n", bookChapters);
             }
 
             // 输出 AI User 的下一条指示
@@ -173,6 +180,7 @@ public class RolePlaying {
         outputHandler.accept("╔══════════════════════════════════════════╗");
         outputHandler.accept("║  已达到最大轮次（" + maxTurns + "），协作结束      ║");
         outputHandler.accept("╚══════════════════════════════════════════╝");
+        return String.join("\n\n", bookChapters);
     }
 
     public String getSpecifiedTask() {

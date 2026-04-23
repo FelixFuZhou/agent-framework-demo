@@ -5,6 +5,10 @@ import com.example.camel.model.SpringAIChatClient;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 /**
  * 电子书生成运行器 - CAMEL 角色扮演案例入口
  *
@@ -44,6 +48,16 @@ public class EbookRunner implements CommandLineRunner {
                 true              // 启用 Task Specifier 细化任务
         );
 
-        rolePlaying.run(System.out::println);
+        String bookContent = rolePlaying.run(System.out::println);
+
+        // 保存电子书到桌面
+        Path bookPath = Path.of("/Users/felix/Desktop/book.txt");
+        try {
+            Files.writeString(bookPath, bookContent);
+            System.out.println();
+            System.out.println("电子书已保存到: " + bookPath);
+        } catch (IOException e) {
+            System.out.println("保存电子书失败: " + e.getMessage());
+        }
     }
 }
