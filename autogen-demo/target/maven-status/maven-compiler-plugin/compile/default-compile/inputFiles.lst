@@ -3,9 +3,15 @@
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/agent/AssistantAgent.java
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/agent/UserProxyAgent.java
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/agent/WebUserProxyAgent.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/chat/ChatSessionRepository.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/chat/ChatSessionState.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/chat/RedisChatSessionRepository.java
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/chat/RoundRobinGroupChat.java
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/chat/TerminationCondition.java
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/chat/TextMentionTermination.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/config/RedisConfig.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/config/SseConnectionManager.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/config/SseMessageSubscriber.java
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/controller/TeamChatController.java
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/message/ChatMessage.java
 /Users/felix/tcworkspace/appworkspace/agent-framework-demo/autogen-demo/src/main/java/com/example/autogen/model/SpringAIChatClient.java

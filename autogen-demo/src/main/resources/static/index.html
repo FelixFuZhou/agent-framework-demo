@@ -270,7 +270,6 @@
     <script>
         let sessionId = null;
         let eventSource = null;
-        let lastSessionChatHistory = [];
 
         function setStatus(text, type) {
             const badge = document.getElementById('statusBadge');
@@ -283,25 +282,24 @@
             area.scrollTop = area.scrollHeight;
         }
 
-        function addMessage(source, content) {
+        function removeTypingIndicator() {
             const area = document.getElementById('chatArea');
-
-            // 移除 typing indicator
             const typing = area.querySelector('.typing-indicator');
             if (typing) typing.remove();
+        }
+
+        function addMessage(source, content) {
+            const area = document.getElementById('chatArea');
+            removeTypingIndicator();
 
             const div = document.createElement('div');
             div.className = 'message ' + source;
 
-            // 简单 markdown 渲染：处理代码块
             let html = escapeHtml(content);
-            // 代码块
             html = html.replace(/```(\w*)\n([\s\S]*?)```/g, (_, lang, code) => {
                 return '<pre><code>' + code + '</code></pre>';
             });
-            // 行内代码
             html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-            // 加粗
             html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
 
             div.innerHTML = '<span class="agent-name">' + escapeHtml(source) + '</span>'
@@ -337,53 +335,26 @@
             document.getElementById('taskPanel').style.display = 'none';
             setStatus('协作中...', 'active');
             document.getElementById('chatArea').innerHTML = '';
-
             addTypingIndicator();
 
             try {
-                const response = await fetch('/api/chat/start', {
+                // 1. POST /start 获取 sessionId
+                const res = await fetch('/api/chat/start', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ task })
                 });
+                if (!res.ok) throw new Error('启动失败: ' + res.status);
 
-                if (!response.ok) {
-                    throw new Error('启动失败: ' + response.status);
-                }
+                const data = await res.json();
+                sessionId = data.sessionId;
+                console.log('会话ID:', sessionId);
 
-                const reader = response.body.getReader();
-                const decoder = new TextDecoder();
-                let buffer = '';
-                let currentEvent = null;
-                let currentData = [];
-
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-
-                    buffer += decoder.decode(value, { stream: true });
-
-                    // 按行解析，保留最后不完整的行在 buffer 中
-                    const lines = buffer.split('\n');
-                    // 如果 buffer 不以 \n 结尾，最后一个元素是不完整的行
-                    buffer = buffer.endsWith('\n') ? '' : lines.pop();
-
-                    for (const line of lines) {
-                        if (line.startsWith('event:')) {
-                            currentEvent = line.substring(6).trim();
-                        } else if (line.startsWith('data:')) {
-                            currentData.push(line.substring(5));
-                        } else if (line.trim() === '' && currentData.length > 0) {
-                            // 空行 = 事件边界，派发事件
-                            handleSSEEvent(currentEvent, currentData.join('\n'));
-                            currentEvent = null;
-                            currentData = [];
-                        }
-                    }
-                }
+                // 2. GET /stream/{sessionId} 建立 SSE（支持浏览器自动重连）
+                connectSSE(sessionId);
 
             } catch (e) {
-                console.error('SSE 错误:', e);
+                console.error('启动错误:', e);
                 setStatus('连接错误', '');
                 addMessage('系统', '连接错误: ' + e.message);
                 document.getElementById('startBtn').disabled = false;
@@ -391,54 +362,44 @@
             }
         }
 
-        function handleSSEEvent(eventName, dataStr) {
-            try {
-                const data = JSON.parse(dataStr);
+        function connectSSE(sid) {
+            if (eventSource) eventSource.close();
 
-                switch (eventName) {
-                    case 'session':
-                        sessionId = data.sessionId;
-                        console.log('会话ID:', sessionId);
-                        break;
+            eventSource = new EventSource('/api/chat/stream/' + sid);
 
-                    case 'message':
-                        addMessage(data.source, data.content);
-                        addTypingIndicator();
-                        break;
+            eventSource.addEventListener('connected', e => {
+                console.log('SSE 连接已建立');
+            });
 
-                    case 'waiting_input':
-                        // 移除 typing indicator
-                        const area = document.getElementById('chatArea');
-                        const typing = area.querySelector('.typing-indicator');
-                        if (typing) typing.remove();
+            eventSource.addEventListener('message', e => {
+                const data = JSON.parse(e.data);
+                addMessage(data.source, data.content);
+                addTypingIndicator();
+            });
 
-                        setStatus('等待用户输入', 'waiting');
-                        document.getElementById('inputPanel').classList.add('visible');
-                        document.getElementById('userInput').focus();
-                        break;
+            eventSource.addEventListener('waiting_input', e => {
+                removeTypingIndicator();
+                setStatus('等待用户输入', 'waiting');
+                document.getElementById('inputPanel').classList.add('visible');
+                document.getElementById('userInput').focus();
+            });
 
-                    case 'complete':
-                        // 移除 typing indicator
-                        const area2 = document.getElementById('chatArea');
-                        const typing2 = area2.querySelector('.typing-indicator');
-                        if (typing2) typing2.remove();
+            eventSource.addEventListener('complete', e => {
+                removeTypingIndicator();
+                const data = JSON.parse(e.data);
+                setStatus('协作完成', '');
+                document.getElementById('inputPanel').classList.remove('visible');
+                addMessage('系统', '✅ 团队协作完成！共 ' + data.totalTurns + ' 轮对话。');
+                document.getElementById('generatePanel').classList.add('visible');
+                eventSource.close();
+            });
 
-                        setStatus('协作完成', '');
-                        document.getElementById('inputPanel').classList.remove('visible');
-                        addMessage('系统', '✅ 团队协作完成！共 ' + data.totalTurns + ' 轮对话。');
-
-                        // 显示代码生成面板
-                        document.getElementById('generatePanel').classList.add('visible');
-                        break;
-
-                    case 'error':
-                        setStatus('出错', '');
-                        addMessage('系统', '❌ 错误: ' + data.message);
-                        break;
+            eventSource.addEventListener('error', e => {
+                // EventSource 原生 error 事件（连接断开）
+                if (eventSource.readyState === EventSource.CLOSED) {
+                    console.log('SSE 连接已关闭');
                 }
-            } catch (e) {
-                console.warn('解析 SSE 数据失败:', dataStr, e);
-            }
+            });
         }
 
         async function submitInput() {

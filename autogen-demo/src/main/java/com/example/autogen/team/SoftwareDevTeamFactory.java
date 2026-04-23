@@ -18,6 +18,19 @@ public class SoftwareDevTeamFactory {
     }
 
     /**
+     * 根据名称创建对应的 AI 智能体（事件驱动模式使用）
+     * UserProxy 不在此创建，由上层逻辑处理
+     */
+    public Agent createByName(String name) {
+        return switch (name) {
+            case "ProductManager" -> createProductManager();
+            case "Engineer" -> createEngineer();
+            case "CodeReviewer" -> createCodeReviewer();
+            default -> throw new IllegalArgumentException("未知智能体: " + name);
+        };
+    }
+
+    /**
      * 创建产品经理智能体
      * 负责启动整个流程：需求分析、功能模块划分、技术选型建议
      */

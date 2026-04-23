@@ -1,5 +1,6 @@
 package com.example.autogen.controller;
 
+import com.example.autogen.config.SseConnectionManager;
 import com.example.autogen.service.CodeExtractorService;
 import com.example.autogen.service.CodeExtractorService.GeneratedFile;
 import com.example.autogen.service.TeamChatService;
@@ -15,8 +16,13 @@ import java.util.Map;
 import java.util.UUID;
 
 /**
- * 团队协作 Web 控制器
- * 提供 SSE 流式输出和用户交互的 REST API
+ * 团队协作 Web 控制器（事件驱动版）
+ *
+ * API 设计：
+ * - POST /api/chat/start        → 创建会话，返回 sessionId（JSON）
+ * - GET  /api/chat/stream/{id}  → SSE 事件流（支持断线重连）
+ * - POST /api/chat/input        → 提交用户输入
+ * - POST /api/chat/generate     → 从 Redis 读历史，生成代码
  */
 @RestController
 @RequestMapping("/api/chat")
@@ -26,37 +32,39 @@ public class TeamChatController {
 
     private final TeamChatService teamChatService;
     private final CodeExtractorService codeExtractorService;
+    private final SseConnectionManager sseConnectionManager;
 
-    public TeamChatController(TeamChatService teamChatService, CodeExtractorService codeExtractorService) {
+    public TeamChatController(TeamChatService teamChatService,
+                              CodeExtractorService codeExtractorService,
+                              SseConnectionManager sseConnectionManager) {
         this.teamChatService = teamChatService;
         this.codeExtractorService = codeExtractorService;
+        this.sseConnectionManager = sseConnectionManager;
     }
 
     /**
-     * 启动团队协作，返回 SSE 事件流
+     * 启动团队协作，返回 sessionId
      */
-    @PostMapping(value = "/start", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter startChat(@RequestBody Map<String, String> request) {
+    @PostMapping("/start")
+    public ResponseEntity<Map<String, String>> startChat(@RequestBody Map<String, String> request) {
         String task = request.get("task");
         if (task == null || task.isBlank()) {
-            throw new IllegalArgumentException("task 不能为空");
+            return ResponseEntity.badRequest().body(Map.of("error", "task 不能为空"));
         }
 
         String sessionId = UUID.randomUUID().toString();
         log.info("启动团队协作会话: {}", sessionId);
+        teamChatService.startChat(sessionId, task);
+        return ResponseEntity.ok(Map.of("sessionId", sessionId));
+    }
 
-        SseEmitter emitter = teamChatService.startChat(sessionId, task);
-
-        // 先发送 sessionId 给前端
-        try {
-            emitter.send(SseEmitter.event()
-                    .name("session")
-                    .data(Map.of("sessionId", sessionId)));
-        } catch (Exception e) {
-            log.error("发送 sessionId 失败", e);
-        }
-
-        return emitter;
+    /**
+     * SSE 事件流连接（支持断线重连）
+     */
+    @GetMapping(value = "/stream/{sessionId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter stream(@PathVariable String sessionId) {
+        log.info("SSE 连接: {}", sessionId);
+        return sseConnectionManager.connect(sessionId);
     }
 
     /**
@@ -75,13 +83,12 @@ public class TeamChatController {
         if (success) {
             return ResponseEntity.ok(Map.of("success", true));
         } else {
-            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "会话不存在或已结束"));
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", "会话不存在或未处于等待输入状态"));
         }
     }
 
     /**
-     * 生成代码工程
-     * 从对话历史中提取代码块，写入指定目录
+     * 生成代码工程（从 Redis 读取对话历史）
      */
     @PostMapping("/generate")
     public ResponseEntity<Map<String, Object>> generateCode(@RequestBody Map<String, String> request) {
