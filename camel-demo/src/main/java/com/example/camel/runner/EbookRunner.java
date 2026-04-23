@@ -35,7 +35,7 @@ public class EbookRunner implements CommandLineRunner {
                 5. 科学验证的克服拖延方法（如番茄工作法、实施意图、自我同情等）
                 6. 总结与行动指南""";
 
-        var rolePlaying = new RolePlaying(
+        RolePlaying rolePlaying = new RolePlaying(
                 "心理学家",       // AI Assistant - 提供专业知识
                 "科普作家",       // AI User - 规划结构并发出指示
                 task,
