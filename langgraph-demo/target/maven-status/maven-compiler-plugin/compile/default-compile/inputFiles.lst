@@ -1,0 +1,11 @@
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/langgraph-demo/src/main/java/com/example/langgraph/LangGraphDemoApplication.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/langgraph-demo/src/main/java/com/example/langgraph/config/LangGraphConfig.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/langgraph-demo/src/main/java/com/example/langgraph/graph/ConditionalEdge.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/langgraph-demo/src/main/java/com/example/langgraph/graph/GraphState.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/langgraph-demo/src/main/java/com/example/langgraph/graph/Node.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/langgraph-demo/src/main/java/com/example/langgraph/graph/StateGraph.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/langgraph-demo/src/main/java/com/example/langgraph/model/SpringAIChatClient.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/langgraph-demo/src/main/java/com/example/langgraph/node/AnswerNode.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/langgraph-demo/src/main/java/com/example/langgraph/node/SearchNode.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/langgraph-demo/src/main/java/com/example/langgraph/node/UnderstandNode.java
+/Users/felix/tcworkspace/appworkspace/agent-framework-demo/langgraph-demo/src/main/java/com/example/langgraph/runner/QAAssistantRunner.java
